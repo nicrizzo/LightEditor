@@ -1,0 +1,35 @@
+div.LightEditorToolbar{
+	height:30px;
+	background:#ddd;
+	border-bottom:1px solid #999;
+	width:100%;
+}
+div.LightEditorToolbar .button{
+	float:left;
+	border:1px solid #999999;
+	margin:5px;
+	height:20px;
+	width:20px;
+	text-align:center;
+	font:13px/20px arial;
+	-webkit-border-radius:3px;
+	color:#333;
+}
+div.LightEditorToolbar .button:active{
+	color:#ddd;
+	background:#444;
+}
+div.LightEditorToolbar .button.active{
+	color:#ddd;
+	background:#444;
+}
+
+div.LightEditorToolbar .button.boldBtn{
+	font-weight:bold;
+}
+div.LightEditorToolbar .button.italicBtn{
+	font-style:italic;
+}
+div.LightEditorToolbar .button.underlineBtn{
+	text-decoration:underline;
+}

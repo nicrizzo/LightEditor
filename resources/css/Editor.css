@@ -1,0 +1,52 @@
+html, body{
+	-webkit-user-select:text;
+	padding:0;
+	margin:0;
+	/*-webkit-user-modify:read-write;*/
+}
+::selection{
+	background:red;
+}
+.LightEditorContainer{
+	border:1px solid #666;
+}
+.LightEditor{
+	overflow:hidden;
+	width:100%;
+	/*height:100%;*/
+	white-space:nowrap;
+	clear:left;
+}
+.LightEditor.focused{
+	-webkit-box-shadow: 0 0 3px 3px #68d;
+}
+.LightEditor br{
+	visibility:visible;
+}
+.LightEditor pre{
+    padding:0;
+    margin:0;
+    display:inline;
+}
+.LightEditor .caret{
+	display:none;
+    border:1px solid blue;
+    padding:0;
+    /*margin:0 -1px;*/
+    margin:0 -1px;
+    width:2px;
+}
+.LightEditor span.probe{
+	border:1px solid transparent;
+}
+/* modifiers */
+.LightEditor span.bold{
+	font-weight:bold;
+}
+.LightEditor span.italic{
+	font-style:italic;
+}
+.LightEditor span.underline{
+	text-decoration:underline;
+}
+/* end modifiers */

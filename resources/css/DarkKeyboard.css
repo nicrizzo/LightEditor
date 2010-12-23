@@ -1,0 +1,20 @@
+div.LightEditorKeyboard{
+	background: -moz-linear-gradient(bottom, #000, #666);
+	background: -webkit-gradient(linear, center bottom, center top, from(#000), to(#333));
+}
+div.LightEditorKeyboard .panel > div > div{
+	border:2px solid #111;
+	border-top:2px solid #ddd;
+	color:#fff;
+	background: -moz-linear-gradient(bottom, #000, #666);
+	background: -webkit-gradient(linear, center center, center top, from(#000), to(#777));
+
+}
+div.LightEditorKeyboard .panel > div > div:active, div.LightEditorKeyboard .panel > div > div.active{
+	color:black;
+	border-top-color:#666;
+	background: -webkit-gradient(linear, center bottom, center top, from(#600), to(#f00));
+}
+div.LightEditorKeyboard .panelCtrl:active{
+	background:red;
+}
