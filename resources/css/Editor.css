@@ -4,9 +4,6 @@ html, body{
 	margin:0;
 	/*-webkit-user-modify:read-write;*/
 }
-::selection{
-	background:red;
-}
 .LightEditorContainer{
 	border:1px solid #666;
 }
