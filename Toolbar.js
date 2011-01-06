@@ -1,5 +1,5 @@
 (function(){
-	LightEditor.Toolbar = function(args){
+	LightEditor.plugins.Toolbar = function(args){
 		var buttonsCfg = this.buttonsCfg, buttonCfg, btnNode, domButtons;
 		this.editor = args.editor;
 		var eNode = this.eNode = this.editor.getDomNode();
@@ -25,17 +25,18 @@
 		this.connectEvents();
 	};
 
-	LightEditor.Toolbar.prototype = {
+	LightEditor.plugins.Toolbar.prototype = {
 		editor: null,
 		domNode: null,
 		eNode: null,
 		domButtons: {},
+		hasLayout: true,
 		buttonsCfg: [
 			{ name: "B", value: "", className: "boldBtn", data: "B", type: "toggle", id: "bold" },
 			{ name: "I", value: "", className: "italicBtn", data: "I", type: "toggle", id: "italic" },
-			{ name: "U", value: "", className: "underlineBtn", data: "U", type: "toggle", id: "underline" },
-			{ name: "", value: "black", className: "colorBtn", data: "color", type: "list", id: "color" },
-			{ name: "", value: "white", className: "backgroundBtn", data: "backgroundColor", type: "list", id: "backgroundColor" }
+			{ name: "U", value: "", className: "underlineBtn", data: "U", type: "toggle", id: "underline" }//,
+//			{ name: "", value: "black", className: "colorBtn", data: "color", type: "list", id: "color" },
+//			{ name: "", value: "white", className: "backgroundBtn", data: "backgroundColor", type: "list", id: "backgroundColor" }
 		],
 		buttonsStatus: {},
 		colors: [{ name: "black", value: "rgb(0,0,0)" }, { name: "red", value: "rgb(255,0,0)" }, { name: "blue", value: "rgb(0,0,255)" }, { name: "yellow", value: "rgb(255,255,0)" }, { name: "magenta", value: "rgb(255,0,255)" }, { name: "orange", value: "rgb(255,100,0)" }, { name: "grey", value: "rgb(100,100,100)" }, { name: "white", value: "rgb(255,255,255)" }],
@@ -80,6 +81,10 @@
 //			this.notify("KeyPress", [data || "", type, active]);
 			this.notify("KeyPress", [data || "", "modifier", active]);
 			evt.stopPropagation();
+		},
+		getHeight: function(){
+			var s = window.getComputedStyle(this.domNode, null);
+			return parseInt(s.getPropertyValue("height")) + parseInt(s.getPropertyValue("border-bottom-width"));
 		}
 	}
 })();

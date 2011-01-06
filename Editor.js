@@ -15,16 +15,19 @@ var LightEditor;
 
 //		this.fixCaretPosition();
 		this.setupModifiers();
-		this.toolbar = new LightEditor.Toolbar({
-			editor: this
-		});
-		this.setDimensions();
-		this.getComputedStyle();
+//		this.toolbar = new LightEditor.plugins.Toolbar({
+//			editor: this
+//		});
+		this.registerPlugins();
 		this.connectEvents();
 		LightEditor.Keyboard.registerObserver(this);
 		instances[instances.length] = this;
+		this.getComputedStyle();
+		this.setDimensions();
 	};
 	LightEditor.prototype = {
+		plugins: [],
+		dispatcher: {},
 		_modifiers: [],
 		_viewportTimeout: null,
 		domNode: null,
@@ -37,7 +40,7 @@ var LightEditor;
 		 */
 		_upperCase: false,
 		/**
-		 * @type {LightEditor.Toolbar}
+		 * @type {LightEditor.plugins.Toolbar}
 		 */
 		toolbar: null,
 		// scroll | autoexpand
@@ -67,9 +70,36 @@ var LightEditor;
 				}
 			}
 		},
+		registerPlugins: function(){
+			this.plugins = [];
+			var plugins = this.containerNode.getAttribute("data-plugins").replace(/\s/g, "").split(","),
+				availablePlugins = LightEditor.plugins
+			;
+			for(var i = 0, l = plugins.length; i < l; i++){
+				this.plugins[i] = new availablePlugins[plugins[i]]({ editor: this });
+			}
+		},
+		/**
+		 *
+		 * @param {Object} observer
+		 */
+		registerObserver: function(observer){
+
+		},
+		removeObserver: function(topic, observer, method){
+
+		},
 		setDimensions: function(){
-			this.domNode.style.height = parseInt(window.getComputedStyle(this.domNode.parentNode, null).getPropertyValue("height")) -
-					parseInt(window.getComputedStyle(this.toolbar.domNode, null).getPropertyValue("height")) + "px";
+			var i = this.plugins.length, cumulativeHeight = parseInt(window.getComputedStyle(this.domNode.parentNode, null).getPropertyValue("height"));
+
+			while(i--){
+				if(this.plugins[i].hasLayout){
+					cumulativeHeight -= this.plugins[i].getHeight();
+				}
+			}
+//			this.domNode.style.height = parseInt(window.getComputedStyle(this.domNode.parentNode, null).getPropertyValue("height")) -
+//					parseInt(window.getComputedStyle(this.toolbar.domNode, null).getPropertyValue("height")) + "px";
+			this.domNode.style.height = cumulativeHeight + "px";
 		},
 		getDomNode: function(){
 			return this.domNode;
@@ -693,4 +723,5 @@ var LightEditor;
 			LightEditor.Keyboard.show();
 		}
 	};
+	LightEditor.plugins = {};
 })();
