@@ -97,8 +97,6 @@ var LightEditor;
 					cumulativeHeight -= this.plugins[i].getHeight();
 				}
 			}
-//			this.domNode.style.height = parseInt(window.getComputedStyle(this.domNode.parentNode, null).getPropertyValue("height")) -
-//					parseInt(window.getComputedStyle(this.toolbar.domNode, null).getPropertyValue("height")) + "px";
 			this.domNode.style.height = cumulativeHeight + "px";
 		},
 		getDomNode: function(){
@@ -227,11 +225,9 @@ var LightEditor;
 			return this.getRelativeTextNode(n, "previous");
 		},
 		getPreviousValidNode: function(n, pos){
-//			TODO: document.createNodeIterator
-			var 
+			var
 				validNode = null,
 				vnode = null,
-				childNodes, childNode,
 				isEOL = this.isEOL, isTextNode = this.isTextNode,
 				nodeIterator = document.createNodeIterator(
 					this.domNode,
@@ -245,63 +241,12 @@ var LightEditor;
 					}},
 					false
 				);
-//			console.log(nodeIterator)
 			while(vnode = nodeIterator.nextNode()){
 				if(!!(vnode.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING) && (isEOL(vnode) || isTextNode(vnode))){
 					validNode = vnode;
 				}
 			}
 			return validNode;
-//			console.log(nodeIterator);
-//				nodes = Array.prototype.slice.call(this.domNode.querySelectorAll("*"), 0)
-//			;
-//			nodes.unshift(this.domNode);
-//			var index = nodes.indexOf(n),
-//				i = index
-//			;
-//			nodes.unshift(this.domNode);
-//			if(i < 0){
-//				return null;
-//			}
-//			console.log("index: " + index);
-//			while(i && !validNode){
-//				node = nodes[i], childNodes = node.childNodes
-//				;
-//				console.log("node " + node + " " + isEOL(node.parentNode) + " " + node.parentNode.innerHTML);
-//				if(isTextNode(node) || isEOL(node)){
-//					validNode = node;
-//				}else if(isEOL(node.parentNode)){
-//					console.log("BOOOOM!");
-//					validNode = node.parentNode;
-//				}else{
-//					for(var j = childNodes.length; j--;){
-//						childNode = childNodes[j];
-//						console.log("childNode: " + childNode.textContent);
-//						if(!!(childNode.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING)){
-//							if(isEOL(childNode) || isTextNode(childNode)){
-//								validNode = childNode;
-//								break;
-//							}
-//						}
-//					}
-////				}
-//				i--;
-//			}
-//			console.log("validNode: " + validNode);
-//			return validNode;
-//			if(n[sibling]){
-//				if(n[sibling].nodeType === 3){
-//					return n[sibling];
-//				}else{
-//					n = n[sibling][child];
-//					while(n && n.nodeType != 3){
-//						n = n[child];
-//					}
-//					return n; // node or null
-//				}
-//			}else{
-//				return n.parentNode === this.domNode ? null : this.getRelativeTextNode(n.parentNode, pos);
-//			}
 		},
 		getNextValidNode: function(n){
 			return this.getRelativeTextNode(n, "next");
