@@ -26,6 +26,9 @@
 	};
 
 	LightEditor.plugins.Toolbar.prototype = {
+		subscriptions: {
+			"notifyModifiers": "setKeyActive"
+		},
 		editor: null,
 		domNode: null,
 		eNode: null,
@@ -51,6 +54,38 @@
 			for(var i = 0, buttonsStatus = this.buttonsStatus, buttonStatus, buttonsCfg = this.buttonsCfg, l = buttonsCfg.length; i < l; i++){
 				buttonStatus = buttonsStatus[buttonsCfg[i].data] = {};
 				buttonStatus.active = false;
+			}
+		},
+		setKeyActive: function(name, a, group){
+			var bc = this.buttonsCfg.filter(function(i){ if(i.name === name){ return i }})[0];
+			if(!bc){
+				return;
+			}
+			var key = this.domButtons[bc.id],
+				buttonStatus = this.buttonsStatus[bc.data]
+			;
+			if(key){
+				key.className = key.className.replace(" active", "") + (a ? " active" : "");
+//				key.active = a;
+				buttonStatus.active = a;
+			}else{
+				// colors and other modifiers without a button
+				var colors = this.colors, bgColors = this.bgColors;
+				// TODO: I should do different actions if it's a color or a bgcolor...
+//				if(group === "color"){
+//					console.log("colors: " + colors + " " + name + " " + colors.indexOf(name));
+//				}
+//				if(group === "bgcolor"){
+//					console.log("bgcolors: " + bgColors + " " + name.replace("bg", "") + " " + bgColors.indexOf(name.replace("bg", "")));
+//				}
+				if(group === "color" && colors.indexOf(name) > -1 && a){
+//					console.log("CHANGED");
+					this.colorSelector.value = this.colorSelector.style.color = name;
+				}
+				if(group === "bgcolor" && bgColors.indexOf(name.replace("bg", "")) > -1 && a) {
+					this.bgColorSelector.value = name.replace("bg", "");
+					this.bgColorSelector.style.color = name.replace("bg", "");
+				}
 			}
 		},
 		keyPress: function(evt){

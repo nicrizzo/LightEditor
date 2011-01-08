@@ -224,7 +224,7 @@ var LightEditor;
 		getPreviousTextNode: function(n){
 			return this.getRelativeTextNode(n, "previous");
 		},
-		getPreviousValidNode: function(n, pos){
+		getPreviousValidNode: function(n){
 			var
 				validNode = null,
 				vnode = null,
@@ -488,15 +488,14 @@ var LightEditor;
 			}
 		},
 		getModifiersFromCaret: function(){
-			var domNode = this.domNode, node = this.caret,
+			var domNode = this.domNode, node = this.getPreviousValidNode(this.caret).parentNode,
 				modifiersMap = this.modifiersMap, currentModifier, matches, c, groups = {}
 			;
 			for(var i in modifiersMap){
-				LightEditor.Keyboard.setKeyActive(i, false);
+				this.notifyModifiers(i, false);
 			}
 			LightEditor.Keyboard.deactivateKeys();
 			while(node != domNode){
-				console.log(node.style.backgroundColor)
 				for(i in modifiersMap){
 					matches = c = 0;
 					currentModifier = modifiersMap[i];
@@ -509,7 +508,8 @@ var LightEditor;
 					}
 					if(matches === c && node.tagName.toLowerCase() === currentModifier.tagName){
 						if(!groups[currentModifier.group]){
-							LightEditor.Keyboard.setKeyActive(i, true, currentModifier.group);
+//							LightEditor.Keyboard.setKeyActive(i, true, currentModifier.group);
+							this.notifyModifiers(i, true, currentModifier.group);
 							if(currentModifier.group){
 								groups[currentModifier.group] = true;
 							}
@@ -517,6 +517,14 @@ var LightEditor;
 					}
 				}
 				node = node.parentNode;
+			}
+		},
+		notifyModifiers: function(){
+			var plugins = this.plugins, i = plugins.length, h;
+			while(i--){
+				if(h = plugins[i].subscriptions.notifyModifiers){
+					plugins[i][h].apply(plugins[i], arguments);
+				}
 			}
 		},
 		fixCaretPosition: function(){
