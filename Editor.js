@@ -599,7 +599,6 @@ var LightEditor;
 					line, curY = 0, deltaY = this.height,
 				abs = Math.abs, minNode, c = this.caret, scrollTop = domNode.scrollTop, curNode
 			;
-			// mouse
 			if(trg === domNode){
 				lines = domNode.querySelectorAll("span>br");
 				lines.length && (minNode = lines[0]);
