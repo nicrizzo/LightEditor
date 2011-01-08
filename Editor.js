@@ -13,11 +13,6 @@ var LightEditor;
 
 		this.domNode.appendChild(this.caret = c = this.createCaret());
 
-//		this.fixCaretPosition();
-		this.setupModifiers();
-//		this.toolbar = new LightEditor.plugins.Toolbar({
-//			editor: this
-//		});
 		this.registerPlugins();
 		this.connectEvents();
 		LightEditor.Keyboard.registerObserver(this);
@@ -525,17 +520,6 @@ var LightEditor;
 				if(h = plugins[i].subscriptions.notifyModifiers){
 					plugins[i][h].apply(plugins[i], arguments);
 				}
-			}
-		},
-		fixCaretPosition: function(){
-			var c = this.caret, ps = c.previousSibling, TEXT_NODE = Node.TEXT_NODE;
-			if(!ps || ps.nodeType === TEXT_NODE){
-				// nothing to do
-				return;
-			}
-			while(ps && ps.nodeType != TEXT_NODE){
-				ps.appendChild(c);
-				ps = ps.previousSibling;
 			}
 		},
 		computeOffsetTop: function(node){

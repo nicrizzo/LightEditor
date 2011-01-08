@@ -107,29 +107,11 @@ typeof LightEditor === "undefined" && (LightEditor = {});
 			this.colorSelector.value = this.colorSelector.style.color = this.colors["black"];
 			this.bgColorSelector.value = this.bgColorSelector.style.color = this.bgColors["white"];
 		},
-		setKeyActive: function(name, a, group){
+		setKeyActive: function(name, a){
 			var key = this.keys[name];
 			if(key){
 				key.domNode.className = key.domNode.className.replace(" active", "") + (a ? " active" : "");
 				key.active = a;
-			}else{
-				// colors and other modifiers without a button
-				var colors = this.colors, bgColors = this.bgColors;
-				// TODO: I should do different actions if it's a color or a bgcolor...
-//				if(group === "color"){
-//					console.log("colors: " + colors + " " + name + " " + colors.indexOf(name));
-//				}
-//				if(group === "bgcolor"){
-//					console.log("bgcolors: " + bgColors + " " + name.replace("bg", "") + " " + bgColors.indexOf(name.replace("bg", "")));
-//				}
-				if(group === "color" && colors.indexOf(name) > -1 && a){
-//					console.log("CHANGED");
-					this.colorSelector.value = this.colorSelector.style.color = name;
-				}
-				if(group === "bgcolor" && bgColors.indexOf(name.replace("bg", "")) > -1 && a) {
-					this.bgColorSelector.value = name.replace("bg", "");
-					this.bgColorSelector.style.color = name.replace("bg", "");
-				}
 			}
 		},
 		keyPress: function(evt){

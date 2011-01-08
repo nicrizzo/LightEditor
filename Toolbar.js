@@ -37,9 +37,7 @@
 		buttonsCfg: [
 			{ name: "B", value: "", className: "boldBtn", data: "B", type: "toggle", id: "bold" },
 			{ name: "I", value: "", className: "italicBtn", data: "I", type: "toggle", id: "italic" },
-			{ name: "U", value: "", className: "underlineBtn", data: "U", type: "toggle", id: "underline" }//,
-//			{ name: "", value: "black", className: "colorBtn", data: "color", type: "list", id: "color" },
-//			{ name: "", value: "white", className: "backgroundBtn", data: "backgroundColor", type: "list", id: "backgroundColor" }
+			{ name: "U", value: "", className: "underlineBtn", data: "U", type: "toggle", id: "underline" }
 		],
 		buttonsStatus: {},
 		colors: [{ name: "black", value: "rgb(0,0,0)" }, { name: "red", value: "rgb(255,0,0)" }, { name: "blue", value: "rgb(0,0,255)" }, { name: "yellow", value: "rgb(255,255,0)" }, { name: "magenta", value: "rgb(255,0,255)" }, { name: "orange", value: "rgb(255,100,0)" }, { name: "grey", value: "rgb(100,100,100)" }, { name: "white", value: "rgb(255,255,255)" }],
@@ -56,7 +54,7 @@
 				buttonStatus.active = false;
 			}
 		},
-		setKeyActive: function(name, a, group){
+		setKeyActive: function(name, a){
 			var bc = this.buttonsCfg.filter(function(i){ if(i.name === name){ return i }})[0];
 			if(!bc){
 				return;
@@ -66,26 +64,7 @@
 			;
 			if(key){
 				key.className = key.className.replace(" active", "") + (a ? " active" : "");
-//				key.active = a;
 				buttonStatus.active = a;
-			}else{
-				// colors and other modifiers without a button
-				var colors = this.colors, bgColors = this.bgColors;
-				// TODO: I should do different actions if it's a color or a bgcolor...
-//				if(group === "color"){
-//					console.log("colors: " + colors + " " + name + " " + colors.indexOf(name));
-//				}
-//				if(group === "bgcolor"){
-//					console.log("bgcolors: " + bgColors + " " + name.replace("bg", "") + " " + bgColors.indexOf(name.replace("bg", "")));
-//				}
-				if(group === "color" && colors.indexOf(name) > -1 && a){
-//					console.log("CHANGED");
-					this.colorSelector.value = this.colorSelector.style.color = name;
-				}
-				if(group === "bgcolor" && bgColors.indexOf(name.replace("bg", "")) > -1 && a) {
-					this.bgColorSelector.value = name.replace("bg", "");
-					this.bgColorSelector.style.color = name.replace("bg", "");
-				}
 			}
 		},
 		keyPress: function(evt){
