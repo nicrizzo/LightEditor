@@ -21,10 +21,12 @@ var LightEditor;
 		this.setDimensions();
 	};
 	LightEditor.prototype = {
-		plugins: [],
-		dispatcher: {},
+		_blink: 0,
 		_modifiers: [],
 		_viewportTimeout: null,
+		blinkInterval: 500,
+		plugins: [],
+		dispatcher: {},
 		domNode: null,
 		caret: null,
 		focused: false,
@@ -621,10 +623,17 @@ var LightEditor;
 			evt.preventDefault();
 			evt.stopPropagation();
 		},
+		blinkCaret: function(){
+			this.caret.style.display = this.caret.style.display === "inline" ? "none" : "inline";
+		},
 		showCaret: function(){
-			this.caret.style.display = "inline";
+			var self = this;
+			this._blink && clearInterval(this._blink);
+			this._blink = setInterval(function(){ self.blinkCaret() }, this.blinkInterval);
 		},
 		hideCaret: function(){
+			clearInterval(this._blink);
+			this._blink = 0;
 			this.caret.style.display = "none";
 		},
 		blur: function(){
