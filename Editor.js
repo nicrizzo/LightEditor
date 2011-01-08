@@ -484,7 +484,7 @@ var LightEditor;
 		},
 		getModifiersFromCaret: function(){
 			var domNode = this.domNode, node = this.getPreviousValidNode(this.caret).parentNode,
-				modifiersMap = this.modifiersMap, currentModifier, matches, c, groups = {}
+				modifiersMap = this.modifiersMap, currentModifier, matches, c
 			;
 			for(var i in modifiersMap){
 				this.notifyModifiers(i, false);
@@ -502,13 +502,7 @@ var LightEditor;
 						}
 					}
 					if(matches === c && node.tagName.toLowerCase() === currentModifier.tagName){
-						if(!groups[currentModifier.group]){
-//							LightEditor.Keyboard.setKeyActive(i, true, currentModifier.group);
-							this.notifyModifiers(i, true, currentModifier.group);
-							if(currentModifier.group){
-								groups[currentModifier.group] = true;
-							}
-						}
+						this.notifyModifiers(i, true, currentModifier.group);
 					}
 				}
 				node = node.parentNode;
