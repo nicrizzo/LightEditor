@@ -227,7 +227,6 @@ var LightEditor;
 //			return this.getRelativeValidNode(n, "previous");
 //		},
 		handleModifier: function(data, active){
-			console.log("handlermodifier: " + data + ", active " + active);
 			var _modifiers = this._modifiers;
 			if(active){
 				_modifiers[_modifiers.length] = data;
@@ -321,7 +320,6 @@ var LightEditor;
 			var c = this.caret, deltaY = 0, caretHeight, eols, lastEOL, domNode = this.domNode, cstyle, ofs = 0, pn;
 			switch(data){
 				case "backspace":
-//					this.normalizeDocument();
 					var validNode = this.getPreviousValidNode(c), d;
 					if(this.isTextNode(validNode)){
 						d = validNode.data;
@@ -329,23 +327,8 @@ var LightEditor;
 						pn = validNode.parentNode;
 						validNode.parentNode.normalize();
 					}else if(this.isEOL(validNode)){
-						console.log("EOL");
 						validNode.parentNode.removeChild(validNode);
 					}
-/*					var tn = this.getPreviousTextNode(c), d, ps = c.previousSibling;
-					if(tn){
-						d = tn.data;
-						tn.data = d.substring(0, d.length-1);
-						pn = tn.parentNode;
-						tn.parentNode.normalize();
-//						this.removeEmptyNodesBottomUp(pn);
-//						this.removeEmptyNodesFrom(ps);
-//						this.removeEmptyNodes();
-					}else if(this.isEOL(ps)){
-						ps.parentNode.removeChild(ps);
-					}*/
-
-	//                this.fixCaret();
 					// TODO: normalize a subnode, if possible
 					this.domNode.normalize();
 				break;
@@ -436,7 +419,6 @@ var LightEditor;
 				for(var i = _modifiers.length; i--;){
 					prevNode = node;
 					currentModifier = modifiersMap[_modifiers[i]];
-					console.log("currentModifier: " + currentModifier)
 					if(!currentModifier){
 						// left and right shift
 						break;
@@ -474,7 +456,6 @@ var LightEditor;
 						c++;
 						if(node.style[j] === currentModifier.style[j]){
 							matches++;
-							console.log(j)
 						}
 					}
 					if(matches === c && node.tagName.toLowerCase() === currentModifier.tagName){
