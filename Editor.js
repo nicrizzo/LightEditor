@@ -5,7 +5,6 @@ var LightEditor;
 		var n = args.node, c;
 		this.scrollMode = args.scrollMode || "scroll";
 		(this.domNode = document.createElement("div")).className = "LightEditor";
-//		this.domNode = typeof n === "string" ? document.getElementById(n) : n;
 		(this.containerNode = (typeof n === "string" && (n = document.getElementById(n)))).className += "LightEditorContainer";
 		this.domNode.innerHTML = n.innerHTML;
 		n.innerHTML = "";
@@ -106,30 +105,6 @@ var LightEditor;
 			var c = document.createElement("span");
 			c.className = "caret";
 			return c;
-		},
-		setupModifiers: function(){
-			var modifiersMap = this.modifiersMap, colors = LightEditor.Keyboard.getColors(), color,
-					bgcolors = LightEditor.Keyboard.getBGColors();
-			for(var i = colors.length; i--;){
-				color = colors[i];
-				modifiersMap[color.value] = {
-					tagName: "span",
-					group: "color",
-					style: {
-						color: color
-					}
-				};
-			}
-			for(i = bgcolors.length; i--;){
-				color = bgcolors[i];
-				modifiersMap["bg" + color.value] = {
-					tagName: "span",
-					group: "bgcolor",
-					style: {
-						backgroundColor: color
-					}
-				};
-			}
 		},
 		connectEvents: function(){
 			var n = this.domNode, self = this;
@@ -491,7 +466,6 @@ var LightEditor;
 			for(var i in modifiersMap){
 				this.notifyModifiers(i, false);
 			}
-			LightEditor.Keyboard.deactivateKeys();
 			while(node != domNode){
 				for(i in modifiersMap){
 					matches = c = 0;
