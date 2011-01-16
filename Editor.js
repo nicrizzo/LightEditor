@@ -79,12 +79,8 @@ var LightEditor;
 		 *
 		 * @param {Object} observer
 		 */
-		registerObserver: function(observer){
-
-		},
-		removeObserver: function(topic, observer, method){
-
-		},
+		registerObserver: function(observer){},
+		removeObserver: function(topic, observer, method){},
 		setDimensions: function(){
 			var i = this.plugins.length, cumulativeHeight = parseInt(window.getComputedStyle(this.domNode.parentNode, null).getPropertyValue("height"));
 
@@ -293,7 +289,8 @@ var LightEditor;
 		},
 		removeEmptyNodes: function(){
 			var nodes, node, domNode = this.domNode, i, c = this.caret;
-			while((nodes = domNode.querySelectorAll("*:not(br):empty")).length > 1){
+//			while((nodes = domNode.querySelectorAll("*:not(br):empty")).length > 1){
+			while((nodes = domNode.querySelectorAll("*:empty")).length > 1){
 				for(i = nodes.length; i--;){
 					node = nodes[i];
 					(node != c) && (node.parentNode.removeChild(node));
@@ -301,20 +298,7 @@ var LightEditor;
 			}
 		},
 		normalizeDocument: function(){
-			var nodes, node, i, domNode = this.domNode, N = 0;
 			this.removeEmptyNodes();
-			while((nodes = domNode.querySelectorAll("br:only-child")).length - N){
-
-//			> 1 || (nodes.length === 1 && nodes[0].parentNode != domNode)){
-				for(i = nodes.length; i--;){
-					node = nodes[i];
-					if(node.parentNode.childNodes.length === 1){
-						node.parentNode.parentNode.replaceChild(document.createElement("br"), node.parentNode);
-					}else{
-						N++;
-					}
-				}
-			}
 		},
 		handleMeta: function(data){
 			var c = this.caret, deltaY = 0, caretHeight, eols, lastEOL, domNode = this.domNode, cstyle, ofs = 0, pn;
@@ -343,8 +327,8 @@ var LightEditor;
 						}
 					}else{
 						// autoExpand
-						eols = domNode.querySelectorAll("span>br");
-						lastEOL = eols[eols.length-1].parentNode;
+						eols = this.getEOLs();
+						lastEOL = eols[eols.length-1];
 						cstyle = window.getComputedStyle(lastEOL, false);
 						ofs = this.computeOffsetTop(lastEOL);
 						domNode.style.height = this.height + lastEOL.offsetTop + parseInt(cstyle.getPropertyValue("height")) + "px";
@@ -369,7 +353,7 @@ var LightEditor;
 		},
 		createEOL: function(){
 			var EOL;
-			(EOL = document.createElement("span")).appendChild(document.createElement("br"));
+			(EOL = document.createElement("span")).appendChild(document.createTextNode("\n")).className = "EOL";
 			return EOL;
 		},
 		isEOL: function(node){
@@ -378,7 +362,7 @@ var LightEditor;
 			}
 			var tagName, child;
 			return !!((tagName = node.tagName) && tagName.toLowerCase() === "span" && (child = node.firstChild) &&
-				child.tagName && child.tagName.toLowerCase() === "br");
+				child.nodeType === 3 && child.data.charCodeAt(0)  === 10);
 		},
 		isTextNode: function(node){
 			if(!node){
@@ -437,7 +421,8 @@ var LightEditor;
 			LightEditor.Keyboard.setKeyActive("right-shift", false);
 			this._upperCase = false;
 			this.getModifiersFromCaret();
-			if((deltaX = c.offsetLeft - this.width)>0){
+			c.style.display = "inline";
+			if((deltaX = this.computeOffsetLeft(c) - this.width)>0){
 				this.domNode.scrollLeft = deltaX;
 			}
 		},
@@ -473,12 +458,19 @@ var LightEditor;
 				}
 			}
 		},
-		computeOffsetTop: function(node){
-			var ofs = 0;
+		computeOffset: function(node, which){
+			var ofs = 0, w = "offset" + which;
 			do{
-				ofs += node.offsetTop;
+				ofs += node[w];
 			}while(node = node.offsetParent); // thanks ppk!
 			return ofs;
+		},
+		// refactor
+		computeOffsetTop: function(node){
+			return this.computeOffset(node, "Top");
+		},
+		computeOffsetLeft: function(node){
+			return this.computeOffset(node, "Left");
 		},
 		/**
 		 * moves the caret in the given direction
@@ -509,7 +501,7 @@ var LightEditor;
 				curNode = testNode;
 				do{
 					curX += curNode.offsetLeft;
-				}while(curNode = curNode.offsetParent); // thanks ppk!
+				}while(curNode = curNode.offsetParent);
 				if((delta = abs(curX-x-scrollLeft)) < dx && testNode != c && testNode.firstChild != c && testNode.parentNode != c){
 					dx = delta;
 					index = i;
@@ -550,6 +542,9 @@ var LightEditor;
 				domNode.scrollLeft += 10;
 			}
 		},
+		getEOLs: function(){
+			return this.domNode.querySelectorAll("span.EOL");
+		},
 		onTouchMove: function(evt){
 			// touch
 			var trg = evt.target, tt = evt.targetTouches[0], domNode = this.domNode, x = tt.clientX, y = tt.clientY, lines,
@@ -557,15 +552,15 @@ var LightEditor;
 				abs = Math.abs, minNode, c = this.caret, scrollTop = domNode.scrollTop, curNode
 			;
 			if(trg === domNode){
-				lines = domNode.querySelectorAll("span>br");
+				lines = this.getEOLs();
 				lines.length && (minNode = lines[0]);
 				for(var i = 0, l = lines.length; i < l; i++){
-					line = lines[i].parentNode;
+					line = lines[i];
 					curNode = line;
 					curY = 0;
 					do{
 						curY += curNode.offsetTop;
-					}while(curNode = curNode.offsetParent); // thanks ppk!
+					}while(curNode = curNode.offsetParent);
 					if(abs(curY - y - scrollTop) < abs(deltaY) ){
 						minNode = line;
 						deltaY = curY - y - scrollTop;
