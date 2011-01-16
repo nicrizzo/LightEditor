@@ -1,15 +1,9 @@
 div.LightEditorKeyboard{
 	display:none;
 	border:1px solid #999;
-	/*height: 170px;*/
-	/*bottom:0;*/
-	/*right:0;*/
-	/*background:#999;*/
 	font:27px arial;
 	padding:0;
 	margin:0;
-
-	/* updated */
 	position:absolute;
 	width:1024px;
 	height:365px;
@@ -18,40 +12,26 @@ div.LightEditorKeyboard{
 }
 div.LightEditorKeyboard .panel{
 	float:left;
-	width:970px;
+	width:990px;
 	display:none;
 }
 div.LightEditorKeyboard .panel.selected{
 	display:block;
 }
 div.LightEditorKeyboard .panel > div{
-	/*width:100%;*/
 	text-align:right;
 	padding:0;
 	margin:1px 0;
-	/*display:block;*/
 	float:right;
 	clear:right;
 }
-div.LightEditorKeyboard .panel > div > select{
-	margin:5px;
-	text-align:center;
-	min-width:75px;
-	height:73px;
-	font:27px arial;
-	background-color:black;
-}
 div.LightEditorKeyboard .panel > div > div{
-	/*border-bottom:0;*/
-	margin:5px;
+	margin:5px 5px 5px 5px;
 	text-align:center;
 	min-width:75px;
 	height:73px;
-	/*width:67px;*/
 	float:left;
 	line-height:73px;
-	/*display:block;*/
-	/*float:left;*/
 	-webkit-border-radius:8px;
 	-moz-border-radius:8px;
 	padding:0;
@@ -85,16 +65,4 @@ div.LightEditorKeyboard .panelCtrl{
 	color:#d96;
 	text-align:center;
 	background:#4a4444;
-}
-div.LightEditorKeyboard .prevPanel{
-	float:left;
-	-webkit-border-top-right-radius:30px;
-	-webkit-border-bottom-right-radius:30px;
-	margin-right:4px;
-}
-div.LightEditorKeyboard .nextPanel{
-	float:right;
-	-webkit-border-top-left-radius:30px;
-	-webkit-border-bottom-left-radius:30px;
-	margin-left:4px;
 }
