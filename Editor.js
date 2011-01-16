@@ -20,32 +20,92 @@ var LightEditor;
 		this.setDimensions();
 	};
 	LightEditor.prototype = {
-		_blink: 0,
-		_modifiers: [],
-		_viewportTimeout: null,
-		blinkInterval: 500,
-		plugins: [],
-		dispatcher: {},
-		domNode: null,
-		caret: null,
-		focused: false,
-		width: 0,
-		height: 0,
 		/**
+		 * @description If true, the first char will be uppercase
 		 * @type {boolean}
 		 */
 		_upperCase: false,
 		/**
-		 * @type {LightEditor.plugins.Toolbar}
+		 * @description Contains the intervalId for the blink
+		 * @Type {number}
+		 * */
+		_blink: 0,
+		/**
+		 * @description Contains the modifiers to add after the next keystroke
+		 * @type {Array}
 		 */
-		toolbar: null,
-		// scroll | autoexpand
+		_modifiers: [],
+		/**
+		 * @description timeoutId for the autoscroll
+		 * @type {number}
+		 */
+		_autoscrollTimeout: null,
+		/**
+		 * @description Interval for the caret blink
+		 * @type {number}
+		 */
+		blinkInterval: 500,
+		/**
+		 * @description Active plugins for this editor instance
+		 * @type {Array}
+		 */
+		plugins: [],
+		/**
+		 * @description Node containing the editable text
+		 * @type {Node}
+		 */
+		domNode: null,
+		/**
+		 * @description The caret node
+		 * @type {Node}
+		 */
+		caret: null,
+		/**
+		 * @description true when the current editor is focused
+		 * @type {boolean}
+		 */
+		focused: false,
+		/**
+		 * @description Editor width
+		 * @type {number}
+		 */
+		width: 0,
+		/**
+		 * @description Editor height
+		 * @type {number}
+		 */
+		height: 0,
+		/**
+		 * @description Scroll mode: "scroll" or "autoexpand".
+		 * @default "scroll"
+		 * @type {String}
+		 */
 		scrollMode: "scroll",
+		/**
+		 * @description When a finger is near the editor border, the text is scrolled in that direction after
+		 * autoscrollDelay ms
+		 * @type {number}
+		 */
 		autoscrollDelay: 1000,
-		autoscrollTimeout: null,
+		/**
+		 * @description Interval for the scroll animation (ms)
+		 * @type {number}
+		 */
 		viewportMoveTime: 50,
+		/**
+		 * @description intervalId for the scroll animation
+		 * @type {number}
+		 */
 		viewportMoveInterval: null,
+		/**
+		 * @description The domNode.parentNode
+		 * @type {Node}
+		 */
 		containerNode: null,
+		/**
+		 * @description Contains the mapping for the supported text modifiers
+		 * @type {Object}
+		 */
 		modifiersMap: {
 			B:{
 				tagName: "span",
@@ -66,6 +126,9 @@ var LightEditor;
 				}
 			}
 		},
+		/**
+		 * @description Registers the plugins passed as space separated list in the plugins attribute
+		 */
 		registerPlugins: function(){
 			this.plugins = [];
 			var plugins = this.containerNode.getAttribute("data-plugins").replace(/\s/g, "").split(","),
@@ -76,14 +139,10 @@ var LightEditor;
 			}
 		},
 		/**
-		 *
-		 * @param {Object} observer
+		 * @description Sets the domNode height
 		 */
-		registerObserver: function(observer){},
-		removeObserver: function(topic, observer, method){},
 		setDimensions: function(){
 			var i = this.plugins.length, cumulativeHeight = parseInt(window.getComputedStyle(this.domNode.parentNode, null).getPropertyValue("height"));
-
 			while(i--){
 				if(this.plugins[i].hasLayout){
 					cumulativeHeight -= this.plugins[i].getHeight();
@@ -91,24 +150,39 @@ var LightEditor;
 			}
 			this.domNode.style.height = cumulativeHeight + "px";
 		},
+		/**
+		 * @description Returns the domNode
+		 * @return The editor domNode
+		 */
 		getDomNode: function(){
 			return this.domNode;
 		},
+		/**
+		 * @description Returns the containerNode
+		 * @return The editor containerNode
+		 */
 		getContainerNode: function(){
 			return this.containerNode;
 		},
+		/**
+		 * @description Creates the caret node
+		 * @return the caret node
+		 */
 		createCaret: function(){
 			var c = document.createElement("span");
 			c.className = "caret";
 			return c;
 		},
+		/**
+		 * @description Creates and connects the event handlers
+		 */
 		connectEvents: function(){
 			var n = this.domNode, self = this;
 			n.addEventListener("touchmove", function(){ self.onTouchMove.apply(self, arguments) }, false);
 			n.addEventListener("touchstart", function(){ self.onTouchMove.apply(self, arguments) }, false);
 			n.addEventListener("touchstart", function(evt){
 				self.stopViewportTimeout.apply(self, arguments);
-				self.autoscrollTimeout = setTimeout(function(){ self.startViewportTimeout.call(self, evt) }, self.autoscrollDelay);
+				self._autoscrollTimeout = setTimeout(function(){ self.startViewportTimeout.call(self, evt) }, self.autoscrollDelay);
 			}, false);
 			n.addEventListener("touchend", function(){
 				self.stopViewportTimeout.apply(self, arguments)
@@ -126,11 +200,19 @@ var LightEditor;
 			}, false);
 
 		},
+		/**
+		 * @description Computes height and width for this editor
+		 */
 		getComputedStyle: function(){
 			var s = window.getComputedStyle(this.domNode, null);
 			this.height = parseInt(s.getPropertyValue("height"));
 			this.width = parseInt(s.getPropertyValue("width"));
 		},
+		/**
+		 * @description Notifies this editor about a topic
+		 * @param {String} topic
+		 * @param {Array} args
+		 */
 		notify: function(topic, args){
 			if(!this.focused){
 				return;
@@ -158,9 +240,10 @@ var LightEditor;
 			}
 		},
 		/**
-		 *
+		 * @description Returns the previous or the next textNode
 		 * @param {Node} n
-		 * @param {String} pos
+		 * @param {String} pos "next" or "previous"
+		 * @return The previous or the next textNode, or null
 		 */
 		getRelativeTextNode: function(n, pos){
 			var sibling = {
@@ -186,12 +269,27 @@ var LightEditor;
 				return n.parentNode === this.domNode ? null : this.getRelativeTextNode(n.parentNode, pos);
 			}
 		},
+		/**
+		 * @description Returns the next textNode
+		 * @param {Node} n
+		 * @return The next textNode, or null
+		 */
 		getNextTextNode: function(n){
 			return this.getRelativeTextNode(n, "next");
 		},
+		/**
+		 * @description Returns the previous textNode
+		 * @param {Node} n
+		 * @return The next previousNode, or null
+		 */
 		getPreviousTextNode: function(n){
 			return this.getRelativeTextNode(n, "previous");
 		},
+		/**
+		 * @description Returns the previous textNode or the previous EOL node
+		 * @param {Node} n
+		 * @return A node or null
+		 */
 		getPreviousValidNode: function(n){
 			var
 				validNode = null,
@@ -216,18 +314,18 @@ var LightEditor;
 			}
 			return validNode;
 		},
-		getNextValidNode: function(n){
-			return this.getRelativeTextNode(n, "next");
-		},
-//		getPreviousValidNode: function(n){
-//			return this.getRelativeValidNode(n, "previous");
-//		},
+		/**
+		 * @description Adds or remove modifier to/from the current queue
+		 * @param {String} data (eg "B", "I"...)
+		 * @param {boolean} active
+		 */
 		handleModifier: function(data, active){
 			var _modifiers = this._modifiers;
 			if(active){
 				_modifiers[_modifiers.length] = data;
 			}else{
-				for(var i = _modifiers.length; i--;){
+				var i = _modifiers.length;
+				while(i--){
 					if(_modifiers[i] === data){
 						_modifiers.splice(i, 1);
 						break;
@@ -244,6 +342,10 @@ var LightEditor;
 				break;
 			}
 		},
+		/**
+		 * @description Removes a modifier from the nodes surrounding the caret
+		 * @param {String} data
+		 */
 		removeModifier: function(data){
 			var c = this.caret, node = c.parentNode, domNode = this.domNode, found = false, matches, counter,
 				currentModifier = this.modifiersMap[data]
@@ -266,40 +368,52 @@ var LightEditor;
 				}
 				node && (node = node.parentNode);
 			}
-
 		},
+		/**
+		 * @description Removes a wrapper from a node
+		 * @param {Node} node
+		 */
 		unwrap: function(node){
 			for(var i = 0, l = node.childNodes.length; i < l; i++){
 				node.parentNode.insertBefore(node.firstChild, node);
 			}
 			node.parentNode.removeChild(node);
-
 		},
-		removeEmptyNodesBottomUp: function(node){
-			if(!node){
-				return;
-			}
-			var pn, domNode = this.domNode;
-			while(node && !node.childNodes.length && node != domNode){
-				pn = node.parentNode;
-				pn && pn.removeChild(node);
-				node = pn;
-			}
-
-		},
+		/**
+		 * @description Remove nodes without children
+		 */
 		removeEmptyNodes: function(){
 			var nodes, node, domNode = this.domNode, i, c = this.caret;
-//			while((nodes = domNode.querySelectorAll("*:not(br):empty")).length > 1){
 			while((nodes = domNode.querySelectorAll("*:empty")).length > 1){
-				for(i = nodes.length; i--;){
+				i = nodes.length;
+				while(i--){
 					node = nodes[i];
 					(node != c) && (node.parentNode.removeChild(node));
 				}
 			}
 		},
+		/**
+		 * @description Remove empty nodes from the document
+		 */
 		normalizeDocument: function(){
+//			var nodes, node, i, domNode = this.domNode, N = 0;
 			this.removeEmptyNodes();
+//			while((nodes = domNode.querySelectorAll("br:only-child")).length - N){
+//
+//				for(i = nodes.length; i--;){
+//					node = nodes[i];
+//					if(node.parentNode.childNodes.length === 1){
+//						node.parentNode.parentNode.replaceChild(document.createElement("br"), node.parentNode);
+//					}else{
+//						N++;
+//					}
+//				}
+//			}
 		},
+		/**
+		 * @description Handles the meta keys, eg the .?123 and ABC on the keyboard
+		 * @param {String} data
+		 */
 		handleMeta: function(data){
 			var c = this.caret, deltaY = 0, caretHeight, eols, lastEOL, domNode = this.domNode, cstyle, ofs = 0, pn;
 			switch(data){
@@ -343,20 +457,37 @@ var LightEditor;
 				break;
 			}
 		},
+		/**
+		 * @description Returns the html contained in this editor
+		 * @return {String} the html contained in this editor
+		 */
 		getContent: function(){
 			return this.domNode.innerHTML;
 		},
+		/**
+		 * @description Removes the focus from all the instances
+		 */
 		blurAllInstances: function(){
-			for(var i = instances.length; i--;){
+			var i = instances.length;
+			while(i--){
 				instances[i].blur();
 			}
 		},
+		/**
+		 * @description Creates a End Of Line node
+		 * @return {Node}
+		 */
 		createEOL: function(){
 			var EOL;
 			(EOL = document.createElement("span")).appendChild(document.createTextNode("\n"));
 			EOL.className = "EOL";
 			return EOL;
 		},
+		/**
+		 * @description True if node is EOL
+		 * @param {Node} node
+		 * @return {boolean} True if the node is a EOL, false otherwise
+		 */
 		isEOL: function(node){
 			if(!node){
 				return false;
@@ -365,26 +496,21 @@ var LightEditor;
 			return !!((tagName = node.tagName) && tagName.toLowerCase() === "span" && (child = node.firstChild) &&
 				child.nodeType === 3 && child.data.charCodeAt(0)  === 10);
 		},
+		/**
+		 * @description True if node is a text node
+		 * @param node
+		 * @return True if node is a text node, false otherwise
+		 */
 		isTextNode: function(node){
 			if(!node){
 				return false;
 			}
 			return node.nodeType === 3;
 		},
-		removeEmptyNodesFrom: function(n){
-			if(!n){
-				return;
-			}
-			var c = this.caret, len = n.childNodes.length, pn;
-			while(n.nodeType != 3 && !len || len === 1 && n.firstChild === c && n !== this.domNode){
-				pn = n.parentNode;
-				n.firstChild && pn.insertBefore(n.firstChild, n);
-				pn.removeChild(n);
-				n = pn;
-				len = n.childNodes.length;
-			}
-
-		},
+		/**
+		 * @description Writes a character
+		 * @param {String} chr
+		 */
 		write: function(chr){
 			var c = this.caret,
 				ps = c.previousSibling,
@@ -427,8 +553,15 @@ var LightEditor;
 				this.domNode.scrollLeft = deltaX;
 			}
 		},
+		/**
+		 * @description Finds the modifiers around the caret and notifies the plugins
+		 */
 		getModifiersFromCaret: function(){
-			var domNode = this.domNode, node = this.getPreviousValidNode(this.caret).parentNode,
+			var domNode = this.domNode, pvn = this.getPreviousValidNode(this.caret);
+			if(!pvn){
+				return;
+			}
+			var node = pvn.parentNode,
 				modifiersMap = this.modifiersMap, currentModifier, matches, c
 			;
 			for(var i in modifiersMap){
@@ -451,6 +584,9 @@ var LightEditor;
 				node = node.parentNode;
 			}
 		},
+		/**
+		 * @description Notifies all subscribed plugins about the modifiers around the caret
+		 */
 		notifyModifiers: function(){
 			var plugins = this.plugins, i = plugins.length, h;
 			while(i--){
@@ -459,6 +595,11 @@ var LightEditor;
 				}
 			}
 		},
+		/**
+		 * @description Computes the left/top offsets
+		 * @param {Node} node
+		 * @param {String} which "top" or "left"
+		 */
 		computeOffset: function(node, which){
 			var ofs = 0, w = "offset" + which;
 			do{
@@ -466,20 +607,26 @@ var LightEditor;
 			}while(node = node.offsetParent); // thanks ppk!
 			return ofs;
 		},
-		// refactor
+		/**
+		 * @description Computes the top offset
+		 * @param {Node} node
+		 */
 		computeOffsetTop: function(node){
 			return this.computeOffset(node, "Top");
 		},
+		/**
+		 * @description Computes the left offset
+		 * @param {Node} node
+		 */
 		computeOffsetLeft: function(node){
 			return this.computeOffset(node, "Left");
 		},
 		/**
-		 * moves the caret in the given direction
-		 * @param {String} x
-		 * @param {String} y
+		 * @description moves the caret in the given position
+		 * @param {number} x
+		 * @param {number} y
 		 */
 		moveCaret: function(x, y){
-			// finger positioning: use splitText and elementFromPoint :)
 			var c = this.caret, t = document.elementFromPoint(x, y), cn = t.childNodes, i, l, j, m, tn,
 				curNode, minNode, testNode = document.createElement("span"), dx = window.screen.width, curX, abs = Math.abs,
 				delta, currentChild, index = 0, scrollLeft = this.domNode.scrollLeft
@@ -518,16 +665,27 @@ var LightEditor;
 			t.normalize();
 			this.getModifiersFromCaret();
 		},
+		/**
+		 * @description Starts the viewport animation timeout
+		 * @param {Event} evt
+		 */
 		startViewportTimeout: function(evt){
 			var self = this;
 			this.viewportMoveInterval = setInterval(function(){ self.adjustViewport(evt) }, this.viewportMoveTime);
 		},
+		/**
+		 * @description Stops the viewport animation timeout
+		 */
 		stopViewportTimeout: function(){
-			this.autoscrollTimeout && clearTimeout(this.autoscrollTimeout);
-			this.autoscrollTimeout = null;
+			this._autoscrollTimeout && clearTimeout(this._autoscrollTimeout);
+			this._autoscrollTimeout = null;
 			this.viewportMoveInterval && clearInterval(this.viewportMoveInterval);
 			this.viewportMoveInterval = null;
 		},
+		/**
+		 * @description Changes the viewport scroll
+		 * @param {Event} evt
+		 */
 		adjustViewport: function(evt){
 			var tt = evt.targetTouches[0], x = tt.clientX, y = tt.clientY, domNode = this.domNode,
 				oT = domNode.offsetTop, oL = domNode.offsetLeft
@@ -543,9 +701,17 @@ var LightEditor;
 				domNode.scrollLeft += 10;
 			}
 		},
+		/**
+		 * @description Returns the EOLs
+		 * @returns {NodeList} EOLs
+		 */
 		getEOLs: function(){
 			return this.domNode.querySelectorAll("span.EOL");
 		},
+		/**
+		 * @description Handler for the touchMove event: moves the caret
+		 * @param {Event} evt
+		 */
 		onTouchMove: function(evt){
 			// touch
 			var trg = evt.target, tt = evt.targetTouches[0], domNode = this.domNode, x = tt.clientX, y = tt.clientY, lines,
@@ -574,23 +740,38 @@ var LightEditor;
 			evt.preventDefault();
 			evt.stopPropagation();
 		},
+		/**
+		 * @description Make the caret blinking
+		 */
 		blinkCaret: function(){
 			this.caret.style.display = this.caret.style.display === "inline" ? "none" : "inline";
 		},
+		/**
+		 * @description Shows the caret
+		 */
 		showCaret: function(){
 			var self = this;
 			this._blink && clearInterval(this._blink);
 			this._blink = setInterval(function(){ self.blinkCaret() }, this.blinkInterval);
 		},
+		/**
+		 * @description Hides the caret
+		 */
 		hideCaret: function(){
 			clearInterval(this._blink);
 			this._blink = 0;
 			this.caret.style.display = "none";
 		},
+		/**
+		 * @description Removes the focus from this editor
+		 */
 		blur: function(){
 			this.domNode.blur();
 			this.onBlur();
 		},
+		/**
+		 * @description onBlur handler
+		 */
 		onBlur: function(){
 			var dn = this.domNode;
 			this.focused = false;
@@ -598,6 +779,9 @@ var LightEditor;
 			this.hideKeyboard();
 			this.hideCaret();
 		},
+		/**
+		 * @description onFocus handler
+		 */
 		onFocus: function(){
 			var dn = this.domNode;
 			this.blurAllInstances();
@@ -606,9 +790,15 @@ var LightEditor;
 			this.showCaret();
 			dn.className = dn.className.replace(" focused", "") + " focused";
 		},
+		/**
+		 * @description Hides the keyboard
+		 */
 		hideKeyboard: function(){
 			LightEditor.Keyboard.hide();
 		},
+		/**
+		 * @description Shows the keyboard
+		 */
 		showKeyboard: function(){
 			LightEditor.Keyboard.show();
 		}

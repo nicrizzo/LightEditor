@@ -71,28 +71,22 @@
 			var trg = evt.target, domButtons = this.domButtons, domButton, active;
 			trg = evt.target, trg = trg.nodeType !== Node.TEXT_NODE ? trg : trg.parentNode;
 			var data = trg.getAttribute("data-value"), type = trg.getAttribute("data-type") || "", buttonStatus;
-//			type = "modifier";
 			if(!trg.getAttribute("data-value")){
-				console.log("exit");
 				return;
 			}
 			buttonStatus = this.buttonsStatus[trg.getAttribute("data-value")];
 			domButton = domButtons[trg.getAttribute("data-value")];
 			switch(type){
 				case "toggle":
-					console.log("toggle");
 					trg.className = trg.className.replace(" active", "");
 					if(!buttonStatus.active){
 						trg.className += " active";
 					}
 					active = buttonStatus.active = !buttonStatus.active;
-					console.log("active "+ active);
 				break;
 				default:
 				break;
 			}
-//			trg.className = "";
-//			this.notify("KeyPress", [data || "", type, active]);
 			this.notify("KeyPress", [data || "", "modifier", active]);
 			evt.stopPropagation();
 		},

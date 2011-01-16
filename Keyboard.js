@@ -25,7 +25,7 @@ typeof LightEditor === "undefined" && (LightEditor = {});
 				'</div>' +
 				'</div>',
 		/**
-		 * 
+		 *
 		 * @param {Object} observer
 		 */
 		registerObserver: function(observer){
