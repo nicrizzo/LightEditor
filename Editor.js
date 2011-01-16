@@ -353,7 +353,8 @@ var LightEditor;
 		},
 		createEOL: function(){
 			var EOL;
-			(EOL = document.createElement("span")).appendChild(document.createTextNode("\n")).className = "EOL";
+			(EOL = document.createElement("span")).appendChild(document.createTextNode("\n"));
+			EOL.className = "EOL";
 			return EOL;
 		},
 		isEOL: function(node){
